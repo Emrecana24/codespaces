@@ -412,7 +412,7 @@
           body: JSON.stringify({
             contents: contents,
             tools: tools,
-            systemInstruction: { parts: [{ text: sysPrompt }, generationConfig: { maxOutputTokens: 8192 }] }
+            systemInstruction: { parts: [{ text: sysPrompt }] }
           })
         });
 
