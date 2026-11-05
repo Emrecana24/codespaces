@@ -1,37 +1,32 @@
-# CODESPACE TERMINAL — GELİŞTİRME VE DEVAM PROMPTU (v2.1 GÜNCEL)
+# CODESPACE TERMINAL — GELİŞTİRME VE DEVAM PROMPTU (v2.2 KESİN SÜRÜM)
 
-Bu proje; GitHub Codespaces ortamını Android telefondan (özellikle Samsung Galaxy A8 / Android 8 / minSdk 24) canlı Bash terminali, Gemini AI terminal ajanı ve uzaktan Dosya Gezgini olarak yönetmeyi sağlayan açık kaynaklı sistemdir.
+Bu proje; GitHub Codespaces ortamını Android telefondan (Samsung Galaxy A8 / Android 8 / minSdk 24) canlı Bash terminali, Gemini AI terminal ajanı ve uzaktan Dosya Gezgini olarak yönetmeyi sağlayan açık kaynaklı sistemdir.
 
-## MİMARİ VE ÖĞRENİLEN KRİTİK KURALLAR:
-1. **İki Parçalı Yapı:**
-   - `server/`: Node.js, `node-pty` ve `ws` (WebSocket) tabanlı PTY sunucusu. Port 8080 üzerinde çalışır ve `.token` ile korunur.
-   - `android/`: Android WebView tabanlı istemci. Xterm.js ile terminali işler, `MainActivity.java` içindeki `AndroidBridge` köprüsünü kullanır.
-2. **Sunucu & Port & Log:**
+## DEĞİŞMEZ MİMARİ VE ÇALIŞMA KURALLARI:
+1. **ÇIKTI VE ŞEFFAFLIK KURALI (ZORUNLU):**
+   - Asla komut hatalarını `2>/dev/null` ile gizleme.
+   - Her işlem baştan sona ekranda canlı akmalı ve mutlaka `2>&1 | tee <dosya>.txt` ile bir log dosyasına yazdırılmalıdır.
+2. **MOBİL KLAVYE VE YAPIŞTIRMA KORUMASI:**
+   - Mobilden web terminaline yapıştırırken satırlar kayıp birbirine giremez. Tüm terminal işlemleri daima `cat << 'EOF' > script.sh` içine yazdırılıp `bash script.sh` ile koşturulmalıdır.
+3. **JAVA 17 VE GRADLE 8.2 UYUMLULUĞU:**
+   - Codespaces varsayılan olarak Java 25 (Class major 69) ile gelebilir. Gradle 8.2 ise Java 25 ile çöker.
+   - Sistemde Java 17 aranmalı, yoksa `sudo apt-get install -y openjdk-17-jdk` ile kurulmalı.
+   - `android/gradle.properties` içine `org.gradle.java.home` olarak Java 17 mutlaka kilitlenmelidir.
+4. **OTOMATİK ARŞİV ÇIKARMA (ZIP TOLERANSI):**
+   - `terminal-update*.zip` veya ana dizindeki herhangi bir `.zip` dosyası otomatik algılanıp açılmalı, alt klasöre açıldıysa ana dizine çekilmeli ve zip silinmelidir.
+5. **SUNUCU VE LOGLAMA:**
    - Port 8080 `public` yapılmalıdır: `gh codespace ports visibility 8080:public -c "$CODESPACE_NAME"`.
-   - Sunucu adresi ve erişim anahtarı kolay kopyalanabilmesi için mutlaka `server.log` dosyasına yazılmalıdır.
-3. **Java ve Gradle Uyumluluğu (KRİTİK):**
-   - Codespaces varsayılan olarak Java 25 (Class major version 69) ile gelebilir. Gradle 8.2 ise Java 25 ile çalışırken Groovy analiz hatası verir.
-   - Ortamda Java 17 mutlaka bulunmalı (yoksa `sudo apt-get install -y openjdk-17-jdk` ile kurulmalı).
-   - Gradle'ın Java 17 kullanması garanti edilmelidir: `android/gradle.properties` içine `org.gradle.java.home` tanımlanmalıdır.
-4. **Android SDK ve İmzalama:**
-   - Android SDK API 34 ve build-tools 34.0.0 yapılandırılmalıdır.
-   - `android/app/debug.keystore` yoksa derleme öncesi `keytool` ile otomatik üretilmelidir.
-5. **Mobil Dostu Script Çalıştırma:**
-   - Mobilde terminale uzun kod blokları yapıştırılırken satırlar iç içe geçip komutları bozabilir. Bu yüzden tüm işlemler daima `cat << 'EOF' > script.sh` içine yazdırılıp `bash script.sh` şeklinde çalıştırılmalıdır.
-6. **Gemini AI Ajanı:**
+   - Sunucu adresi ve erişim anahtarı kullanıcının kolay kopyalaması için hem terminale basılmalı hem de `server.log` içine açıkça yazılmalıdır.
+6. **APK VE RELEASE:**
+   - `debug.keystore` yoksa otomatik üretilmeli.
+   - Derlenen `CodespaceTerminal.apk` hem ana dizine kopyalanmalı hem de GitHub Releases (v2.0) sayfasına yüklenmelidir.
+7. **GEMINI AI AJANI REST PROTOKOLÜ:**
    - Modeller: `gemini-3.5-flash-lite` (varsayılan), `gemini-3.6-flash`, `gemini-3.8-flash`.
-   - API Anahtarı: Google AI Studio'nun `AQ.` formatındaki anahtarları desteklenir (`x-goog-api-key` ve `?key=`).
-   - REST Protokolü: Araç çağrısı dönüşünde (`functionResponse`) rol kesinlikle 'user' olmalıdır ('function' değil).
-   - Güvenlik: `rm -rf`, `sudo`, `dd`, `git push --force` gibi riskli komutlarda UI üzerinden onay ister.
+   - Function Calling dönüşünde (`functionResponse`) rol kesinlikle 'user' olmalıdır ('function' değil).
+   - Kritik komutlarda (`rm -rf`, `sudo`, `dd`, `git push --force`) UI üzerinden onay istenir.
 
 ---
 
 ## İLK GÖREVİN:
-Kullanıcı sıfırdan bir Codespace açtı ve ana dizine `terminal-update*.zip` arşivini yükledi.
-Kullanıcıya projeyi anlatmakla vakit kaybetme; doğrudan yukarıdaki tüm deneyimleri içeren ve aşağıdaki adımları tek hamlede eksiksiz yapan **TEK BİR TERMINAL KOMUTU** ver:
-
-1. Ana dizindeki `terminal-update*.zip` (veya herhangi bir `.zip`) dosyasını otomatik bulup açan, gerekirse alt klasörden ana dizine taşıyan ve zip'i silen,
-2. Sunucuyu (`server/kur.sh` veya `server/start.sh`) başlatan, port 8080'i public yapan, sunucu URL ve Token bilgilerini `server.log` içine açıkça yazan,
-3. Kütüphaneleri (Xterm 5.3.0), Java 17'yi ve Android SDK API 34'ü yapılandıran, `debug.keystore` oluşturan,
-4. APK'yı derleyen (`./gradlew :app:assembleRelease --no-daemon`), ana dizine `CodespaceTerminal.apk` olarak kopyalayan ve GitHub Releases (v2.0) sayfasına yükleyen,
-5. Mobilde satır kayması olmaması için tüm bu süreci bir `.sh` dosyası oluşturup çalıştırarak tamamlayan ve çıktıyı `derleme_cikti.txt` dosyasına yazdıran komut bloğunu sun.
+Kullanıcı sıfırdan bir Codespace açtı ve ana dizine zip dosyasını yükledi.
+Lafı uzatmadan doğrudan yukarıdaki kuralları eksiksiz işleten, tüm çıktıyı ekranda canlı akıtıp `derleme_cikti.txt` dosyasına kaydeden tek bir çalıştırma bloğu sun.
