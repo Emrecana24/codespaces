@@ -1,32 +1,32 @@
-# CODESPACE TERMINAL — GELİŞTİRME VE DEVAM PROMPTU (v2.2 KESİN SÜRÜM)
+# CODESPACE TERMINAL — GELİŞTİRME VE DEVAM PROMPTU (v2.3 TEK LOG STANDARDI)
 
 Bu proje; GitHub Codespaces ortamını Android telefondan (Samsung Galaxy A8 / Android 8 / minSdk 24) canlı Bash terminali, Gemini AI terminal ajanı ve uzaktan Dosya Gezgini olarak yönetmeyi sağlayan açık kaynaklı sistemdir.
 
 ## DEĞİŞMEZ MİMARİ VE ÇALIŞMA KURALLARI:
-1. **ÇIKTI VE ŞEFFAFLIK KURALI (ZORUNLU):**
-   - Asla komut hatalarını `2>/dev/null` ile gizleme.
-   - Her işlem baştan sona ekranda canlı akmalı ve mutlaka `2>&1 | tee <dosya>.txt` ile bir log dosyasına yazdırılmalıdır.
+1. **TEK LOG VE ŞEFFAFLIK KURALI (ZORUNLU):**
+   - Asla komut hatalarını '2>/dev/null' ile gizleme.
+   - Projedeki tüm çalıştırma çıktıları istisnasız ekranda canlı akmalı ve tek standart log dosyası olan 'derleme_cikti.txt' dosyasına yazdırılmalıdır ('2>&1 | tee derleme_cikti.txt'). İkinci bir log dosyası oluşturulamaz.
 2. **MOBİL KLAVYE VE YAPIŞTIRMA KORUMASI:**
-   - Mobilden web terminaline yapıştırırken satırlar kayıp birbirine giremez. Tüm terminal işlemleri daima `cat << 'EOF' > script.sh` içine yazdırılıp `bash script.sh` ile koşturulmalıdır.
+   - Mobilden web terminaline yapıştırırken satırların kaymaması için tüm terminal komutları daima 'cat << '\''EOF'\'' > script.sh' içine yazdırılıp 'bash script.sh' şeklinde çalıştırılmalıdır.
 3. **JAVA 17 VE GRADLE 8.2 UYUMLULUĞU:**
-   - Codespaces varsayılan olarak Java 25 (Class major 69) ile gelebilir. Gradle 8.2 ise Java 25 ile çöker.
-   - Sistemde Java 17 aranmalı, yoksa `sudo apt-get install -y openjdk-17-jdk` ile kurulmalı.
-   - `android/gradle.properties` içine `org.gradle.java.home` olarak Java 17 mutlaka kilitlenmelidir.
+   - Codespaces varsayılan olarak Java 25 (Class major 69) ile gelebilir; Gradle 8.2 ise Java 25 ile çöker.
+   - Sistemde Java 17 aranmalı, yoksa 'sudo apt-get install -y openjdk-17-jdk' ile kurulmalıdır.
+   - 'android/gradle.properties' içine 'org.gradle.java.home' olarak Java 17 yolu mutlaka yazılmalıdır.
 4. **OTOMATİK ARŞİV ÇIKARMA (ZIP TOLERANSI):**
-   - `terminal-update*.zip` veya ana dizindeki herhangi bir `.zip` dosyası otomatik algılanıp açılmalı, alt klasöre açıldıysa ana dizine çekilmeli ve zip silinmelidir.
+   - 'terminal-update*.zip' veya ana dizindeki herhangi bir '.zip' dosyası otomatik bulunup açılmalı, alt klasöre açıldıysa ana dizine taşınmalı ve zip silinmelidir.
 5. **SUNUCU VE LOGLAMA:**
-   - Port 8080 `public` yapılmalıdır: `gh codespace ports visibility 8080:public -c "$CODESPACE_NAME"`.
-   - Sunucu adresi ve erişim anahtarı kullanıcının kolay kopyalaması için hem terminale basılmalı hem de `server.log` içine açıkça yazılmalıdır.
+   - Port 8080 public yapılmalıdır: 'gh codespace ports visibility 8080:public -c "$CODESPACE_NAME"'.
+   - Sunucu adresi ve erişim anahtarı hem terminale basılmalı hem de 'server.log' içine kopyalamaya hazır şekilde yazılmalıdır.
 6. **APK VE RELEASE:**
-   - `debug.keystore` yoksa otomatik üretilmeli.
-   - Derlenen `CodespaceTerminal.apk` hem ana dizine kopyalanmalı hem de GitHub Releases (v2.0) sayfasına yüklenmelidir.
+   - 'debug.keystore' yoksa otomatik üretilmelidir.
+   - Derlenen 'CodespaceTerminal.apk' ana dizine alınmalı ve GitHub Releases (v2.0) sayfasına yüklenmelidir.
 7. **GEMINI AI AJANI REST PROTOKOLÜ:**
-   - Modeller: `gemini-3.5-flash-lite` (varsayılan), `gemini-3.6-flash`, `gemini-3.8-flash`.
-   - Function Calling dönüşünde (`functionResponse`) rol kesinlikle 'user' olmalıdır ('function' değil).
-   - Kritik komutlarda (`rm -rf`, `sudo`, `dd`, `git push --force`) UI üzerinden onay istenir.
+   - Modeller: 'gemini-3.5-flash-lite' (varsayılan), 'gemini-3.6-flash', 'gemini-3.8-flash'.
+   - Function Calling dönüşünde ('functionResponse') rol kesinlikle 'user' olmalıdır ('function' değil).
+   - Riskli komutlarda ('rm -rf', 'sudo', 'dd', 'git push --force') UI üzerinden onay istenir.
 
 ---
 
 ## İLK GÖREVİN:
 Kullanıcı sıfırdan bir Codespace açtı ve ana dizine zip dosyasını yükledi.
-Lafı uzatmadan doğrudan yukarıdaki kuralları eksiksiz işleten, tüm çıktıyı ekranda canlı akıtıp `derleme_cikti.txt` dosyasına kaydeden tek bir çalıştırma bloğu sun.
+Lafı uzatmadan doğrudan yukarıdaki kuralları eksiksiz işleten, tüm çıktıyı ekranda canlı akıtıp tek log olan 'derleme_cikti.txt' dosyasına kaydeden tek bir çalıştırma bloğu sun.
